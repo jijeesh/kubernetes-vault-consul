@@ -1,9 +1,5 @@
 # Running Vault and Consul on Kubernetes
 
-## Want to learn how to build this?
-
-Check out the [post](https://testdriven.io/running-vault-and-consul-on-kubernetes).
-
 ## Want to use this project?
 
 ### Prerequisites
@@ -101,3 +97,8 @@ $ export VAULT_CACERT="certs/ca.pem"
 $ kubectl get pods
 $ vault status
 ```
+
+
+## Want to learn how to build this?
+
+Check out the [post](https://testdriven.io/running-vault-and-consul-on-kubernetes).
