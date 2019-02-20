@@ -24,6 +24,18 @@ Start the cluster:
 $ minikube start --vm-driver=virtualbox
 $ minikube dashboard
 ```
+Once installed, create a workspace, configure the GOPATH and add the workspace's bin folder to your system path:
+```
+$ mkdir $HOME/go
+$ export GOPATH=$HOME/go
+$ export PATH=$PATH:$GOPATH/bin
+```
+Next, install the SSL ToolKit:
+
+```
+$ go get -u github.com/cloudflare/cfssl/cmd/cfssl
+$ go get -u github.com/cloudflare/cfssl/cmd/cfssljson
+```
 
 ### TLS Certificates
 
@@ -42,13 +54,25 @@ $ cfssl gencert \
     -config=certs/config/ca-config.json \
     -profile=default \
     certs/config/consul-csr.json | cfssljson -bare certs/consul
-
+```
+Do the same for Vault:
+```
 $ cfssl gencert \
     -ca=certs/ca.pem \
     -ca-key=certs/ca-key.pem \
     -config=certs/config/ca-config.json \
     -profile=default \
     certs/config/vault-csr.json | cfssljson -bare certs/vault
+```
+You should now see the following PEM files within the "certs" directory:
+
+```
+ca-key.pem
+ca.pem
+consul-key.pem
+consul.pem
+vault-key.pem
+vault.pem
 ```
 
 ### Vault and Consul
@@ -58,7 +82,10 @@ Spin up Vault and Consul on Kubernetes:
 ```sh
 $ sh create.sh
 ```
-
+Forward the port to the local machine for consul:
+```
+$ kubectl -n vault port-forward consul-1 8500:8500
+```
 ### Environment Variables
 
 In a new terminal window, navigate to the project directory and set the following environment variables:
