@@ -8,7 +8,7 @@ export GOSSIP_ENCRYPTION_KEY=$(consul keygen)
 
 echo "Creating the Consul Secret to store the Gossip key and the TLS certificates..."
 
-kubectl create secret generic consul \
+kubectl -n vault create secret generic consul \
   --from-literal="gossip-encryption-key=${GOSSIP_ENCRYPTION_KEY}" \
   --from-file=certs/ca.pem \
   --from-file=certs/consul.pem \
@@ -17,22 +17,22 @@ kubectl create secret generic consul \
 
 echo "Storing the Consul config in a ConfigMap..."
 
-kubectl create configmap consul --from-file=consul/config.json
+kubectl -n vault create configmap consul --from-file=consul/config.json
 
 
 echo "Creating the Consul Service..."
 
-kubectl create -f consul/service.yaml
+kubectl -n vault create -f consul/service.yaml
 
 
 echo "Creating the Consul StatefulSet..."
 
-kubectl create -f consul/statefulset.yaml
+kubectl -n vault create -f consul/statefulset.yaml
 
 
 echo "Creating a Secret to store the Vault TLS certificates..."
 
-kubectl create secret generic vault \
+kubectl -n vault create secret generic vault \
     --from-file=certs/ca.pem \
     --from-file=certs/vault.pem \
     --from-file=certs/vault-key.pem
@@ -40,25 +40,25 @@ kubectl create secret generic vault \
 
 echo "Storing the Vault config in a ConfigMap..."
 
-kubectl create configmap vault --from-file=vault/config.json
+kubectl -n vault create configmap vault --from-file=vault/config.json
 
 
 echo "Creating the Vault Service..."
 
-kubectl create -f vault/service.yaml
+kubectl -n vault create -f vault/service.yaml
 
 
 echo "Creating the Vault Deployment..."
 
-kubectl apply -f vault/deployment.yaml
+kubectl -n vault apply -f vault/deployment.yaml
 
 
 echo "All done! Forwarding port 8200..."
 
-POD=$(kubectl get pods -o=name | grep vault | sed "s/^.\{4\}//")
+POD=$(kubectl -n vault get pods -o=name | grep vault | sed "s/^.\{4\}//")
 
 while true; do
-  STATUS=$(kubectl get pods ${POD} -o jsonpath="{.status.phase}")
+  STATUS=$(kubectl -n vault get pods ${POD} -o jsonpath="{.status.phase}")
   if [ "$STATUS" == "Running" ]; then
     break
   else
@@ -67,4 +67,4 @@ while true; do
   fi
 done
 
-kubectl port-forward $POD 8200:8200
+kubectl -n vault port-forward $POD 8200:8200
